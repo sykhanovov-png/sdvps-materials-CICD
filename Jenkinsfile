@@ -44,6 +44,7 @@ pipeline {
                 echo '=== Uploading binary to Nexus ==='
                 sh '''
                     set -e
+                    set +x
                     HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
                         -u "${NEXUS_USER}:${NEXUS_PASS}" \
                         --upload-file sdvps-app \
