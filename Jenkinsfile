@@ -44,10 +44,16 @@ pipeline {
                 echo '=== Uploading binary to Nexus ==='
                 sh '''
                     set -e
-                    set +x
-                    curl -s -f -u "${NEXUS_USER}:${NEXUS_PASS}" \
-                         --upload-file sdvps-app \
-                         "${NEXUS_URL}/repository/sdvps-raw/sdvps-app-v${BUILD_NUMBER}"
+                    HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+                        -u "${NEXUS_USER}:${NEXUS_PASS}" \
+                        --upload-file sdvps-app \
+                        "${NEXUS_URL}/repository/sdvps-raw/sdvps-app-v${BUILD_NUMBER}")
+                    echo "=== Nexus response: HTTP $HTTP_CODE ==="
+                    if [ "$HTTP_CODE" != "201" ]; then
+                        echo "=== Upload failed! ==="
+                         exit 1
+                    fi
+                    echo "=== Upload OK: sdvps-app-v${BUILD_NUMBER} ==="
                 '''
             }
         }
