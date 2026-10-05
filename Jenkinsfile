@@ -6,6 +6,13 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr: '10'))
     }
 
+    environment {
+        NEXUS_URL   = 'http://93.77.164.8:8081'
+        NEXUS_REPO  = 'sdvps-raw'
+        NEXUS_USER  = 'admin'
+        NEXUS_PASS  = credentials('nexus-admin')
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -18,8 +25,6 @@ pipeline {
             steps {
                 echo '=== Go version ==='
                 sh 'go version'
-                echo '=== Docker version ==='
-                sh 'docker --version'
             }
         }
 
@@ -30,11 +35,22 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Build binary') {
             steps {
-                echo '=== Building Docker image ==='
-                sh "docker build -t sdvps-go-app:v${BUILD_NUMBER} ."
-                sh "docker tag sdvps-go-app:v${BUILD_NUMBER} sdvps-go-app:latest"
+                echo '=== Building Go binary ==='
+                sh 'CGO_ENABLED=0 GOOS=linux go build -a -installsuffix nocgo -o sdvps-app .'
+                sh 'ls -lh sdvps-app'
+            }
+        }
+
+        stage('Upload to Nexus') {
+            steps {
+                echo '=== Uploading binary to Nexus ==='
+                sh '''
+                    curl -v -u "${NEXUS_USER}:${NEXUS_PASS}" \
+                         --upload-file sdvps-app \
+                         "${NEXUS_URL}/repository/${NEXUS_REPO}/sdvps-app-v${BUILD_NUMBER}"
+                '''
             }
         }
     }
