@@ -38,8 +38,11 @@ pipeline {
         stage('Build binary') {
             steps {
                 echo '=== Building Go binary ==='
-                sh 'CGO_ENABLED=0 GOOS=linux go build -a -installsuffix nocgo -o sdvps-app .'
-                sh 'ls -lh sdvps-app'
+                sh '''
+                    set -e
+                    CGO_ENABLED=0 GOOS=linux go build -a -installsuffix nocgo -o sdvps-app .
+                    ls -lh sdvps-app
+                '''
             }
         }
 
@@ -47,7 +50,8 @@ pipeline {
             steps {
                 echo '=== Uploading binary to Nexus ==='
                 sh '''
-                    curl -v -u "${NEXUS_USER}:${NEXUS_PASS}" \
+                    set -e
+                    curl -v -f -u "${NEXUS_USER}:${NEXUS_PASS}" \
                          --upload-file sdvps-app \
                          "${NEXUS_URL}/repository/${NEXUS_REPO}/sdvps-app-v${BUILD_NUMBER}"
                 '''
