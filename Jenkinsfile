@@ -10,7 +10,7 @@ pipeline {
         NEXUS_URL   = 'http://93.77.164.8:8081'
         NEXUS_REPO  = 'sdvps-raw'
         NEXUS_USER  = 'admin'
-        NEXUS_PASS  = 'sova-test'
+        NEXUS_PASS  = credentials('nexus-admin')
     }
 
     stages {
