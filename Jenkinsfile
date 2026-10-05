@@ -6,13 +6,6 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr: '10'))
     }
 
-    environment {
-        NEXUS_URL   = 'http://93.77.164.8:8081'
-        NEXUS_REPO  = 'sdvps-raw'
-        NEXUS_USER  = 'admin'
-        NEXUS_PASS  = credentials('nexus-admin')
-    }
-
     stages {
         stage('Checkout') {
             steps {
@@ -53,7 +46,7 @@ pipeline {
                     set -e
                     curl -v -f -u "${NEXUS_USER}:${NEXUS_PASS}" \
                          --upload-file sdvps-app \
-                         "${NEXUS_URL}/repository/${NEXUS_REPO}/sdvps-app-v${BUILD_NUMBER}"
+                         "${NEXUS_URL}/repository/sdvps-raw/sdvps-app-v${BUILD_NUMBER}"
                 '''
             }
         }
