@@ -44,6 +44,7 @@ pipeline {
                 echo '=== Uploading binary to Nexus ==='
                 sh '''
                     set -e
+                    set +x
                     curl -v -f -u "${NEXUS_USER}:${NEXUS_PASS}" \
                          --upload-file sdvps-app \
                          "${NEXUS_URL}/repository/sdvps-raw/sdvps-app-v${BUILD_NUMBER}"
